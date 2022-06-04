@@ -1,0 +1,40 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-hello-service
+  labels:
+    app: my-hello-service
+spec:
+  ports:
+    - port: 8081
+      name: http
+      targetPort: 8081
+  selector:
+    app: my-hello-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-hello-service
+  labels:
+    app: my-hello-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-hello-service
+  template:
+    metadata:
+      labels:
+        app: my-hello-service
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+        - name: app
+          image: image-registry.openshift-image-registry.svc:5000/istio-https/my-hello-service
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8081
+---

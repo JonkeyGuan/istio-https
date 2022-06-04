@@ -1,0 +1,39 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name:  my-hello
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      tls:
+        mode: SIMPLE  
+        credentialName: "https-credential"
+      hosts:
+        - "my-hello-istio-system.apps.cluster-95cf7.95cf7.sandbox882.opentlc.com"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: my-hello-service
+spec:
+  hosts:
+    - "my-hello-istio-system.apps.cluster-95cf7.95cf7.sandbox882.opentlc.com"
+  gateways:
+    -  my-hello
+  http:
+    - route:
+        - destination:
+            host: my-hello-service
+            port:
+              number: 8081
+      corsPolicy:
+        allowOrigins:
+        - exact: https://my-vue-istio-system.apps.cluster-95cf7.95cf7.sandbox882.opentlc.com
+        allowMethods:
+        - GET
+        maxAge: "24h"
