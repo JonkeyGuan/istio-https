@@ -1,0 +1,18 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name:  my-https
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      tls:
+        mode: SIMPLE  
+        credentialName: "https-credential"
+      hosts:
+        - "my-vue-istio-system.apps.cluster-95cf7.95cf7.sandbox882.opentlc.com"
+        - "my-hello-istio-system.apps.cluster-95cf7.95cf7.sandbox882.opentlc.com"
