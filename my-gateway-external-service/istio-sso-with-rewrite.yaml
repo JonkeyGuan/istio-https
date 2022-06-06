@@ -1,0 +1,74 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name:  my-https
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      tls:
+        mode: SIMPLE
+        credentialName: "https-credential"
+      hosts:
+        - "my-vue-istio-system.apps.cluster-95cf7.95cf7.sandbox882.opentlc.com"
+        - "my-hello-istio-system.apps.cluster-95cf7.95cf7.sandbox882.opentlc.com"
+        - "my-ext-hello-istio-system.apps.cluster-95cf7.95cf7.sandbox882.opentlc.com"  
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: my-ext-hello-service-entry
+spec:
+  hosts:
+  - "keycloak.sso.svc.cluster.local"
+  location: MESH_EXTERNAL
+  ports:
+  - number: 8443
+    name: tls
+    protocol: HTTPS
+  resolution: DNS
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: my-ext-hello-service
+spec:
+  hosts:
+    - "my-ext-hello-istio-system.apps.cluster-95cf7.95cf7.sandbox882.opentlc.com"
+  gateways:
+    -  my-gateway/my-https
+  http:
+    - match:
+      - uri:
+          prefix: "/vue-ext"
+      rewrite:
+          uri: "/auth"
+      route:
+      - destination:
+          host: "keycloak.sso.svc.cluster.local"
+          port:
+            number: 8443
+    - route:
+      - destination:
+          host: "keycloak.sso.svc.cluster.local"
+          port:
+            number: 8443
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: my-ext-hello-destination-rule
+spec:
+  host: keycloak.sso.svc.cluster.local
+  trafficPolicy:
+    portLevelSettings:
+    - port:
+        number: 8443
+      loadBalancer:
+        simple: ROUND_ROBIN
+      tls:
+        mode: SIMPLE  

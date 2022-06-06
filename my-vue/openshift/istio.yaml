@@ -6,7 +6,7 @@ spec:
   hosts:
     - "my-vue-istio-system.apps.cluster-95cf7.95cf7.sandbox882.opentlc.com"
   gateways:
-    -  my-https
+    -  my-gateway/my-https
   http:
     - route:
         - destination:

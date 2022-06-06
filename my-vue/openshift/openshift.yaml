@@ -33,7 +33,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: image-registry.openshift-image-registry.svc:5000/istio-https/my-vue
+          image: image-registry.openshift-image-registry.svc:5000/my-vue/my-vue
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
